@@ -8,19 +8,19 @@ class Movie < ActiveRecord::Base
    #w[title, release_date].include?(sort_param) ? sort_param : "title"
    logger.info 'Entering filtered sort'
    logger.info  "Filter: #{filter_param} #{filter_param.class}"
-   if(filter_param === nil)
+   if(filter_param.class == NilClass)
       logger.debug "Filter param null ..."
       @movies = Movie.all
       return
    end
-   h = eval(filter_param)
-   if (h === nil) 
-      logger.debug "Hash null... returning"
-      @movies = Movie.all
-      return
-   end
+#h = eval(filter_param)
+#if (h.nil?) 
+#   logger.debug "Hash null... returning"
+# @movies = Movie.all
+#      return
+#   end
    array = Array.new
-   h.each do |k,v|
+   filter_param.each do |k,v|
       logger.debug "#{k}"
       array << k
    end

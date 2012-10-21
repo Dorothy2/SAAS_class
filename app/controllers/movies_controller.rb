@@ -22,8 +22,9 @@ class MoviesController < ApplicationController
        @movies = Movie.order(sort_column)
     end
 
-    if ratings.nil? || eval(ratings).nil?
-        return
+#logger.debug "Ratings: #{ratings} ratings nil? #{ratings.nil?} ratings.length #{ratings.length}"
+    if ratings.nil?
+        return(@movies)
     end
     
 #logger.debug "check ratings #{ratings.class?}"
@@ -80,7 +81,8 @@ class MoviesController < ApplicationController
 
   def ratings
     ratings = params[:ratings]
-    logger.debug "#{ratings}"
+    logger.debug "From ratings: #{ratings.class}"
+    return ratings
 
   end
 
