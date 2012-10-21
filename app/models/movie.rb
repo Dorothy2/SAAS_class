@@ -6,16 +6,19 @@ class Movie < ActiveRecord::Base
 
   def self.filter(filter_param)
    #w[title, release_date].include?(sort_param) ? sort_param : "title"
-   logger.debug 'Entering filtered sort'
-   logger.debug  "Filter: #{filter_param} #{filter_param.class}"
-   #f(filter_param === nil)
-   #  return movies
-   #nd
+   logger.info 'Entering filtered sort'
+   logger.info  "Filter: #{filter_param} #{filter_param.class}"
+   if(filter_param === nil)
+      logger.debug "Filter param null ..."
+      @movies = Movie.all
+      return
+   end
    h = eval(filter_param)
-#if (h === nil) 
-#      logger.debug "Hash null... returning"
-#      return @movies
-#   end
+   if (h === nil) 
+      logger.debug "Hash null... returning"
+      @movies = Movie.all
+      return
+   end
    array = Array.new
    h.each do |k,v|
       logger.debug "#{k}"
@@ -26,7 +29,6 @@ class Movie < ActiveRecord::Base
    @movies = Movie.all
    @movies.each do |m|
    if(array.include?(m.rating.upcase))
-#if(m.rating.upcase === 'PG')
          filtered_list << m
       end
     end

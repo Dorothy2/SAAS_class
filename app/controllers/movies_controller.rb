@@ -22,13 +22,9 @@ class MoviesController < ApplicationController
        @movies = Movie.order(sort_column)
     end
 
-#if ratings.nil?
-#        return
-#    end
-#    h = eval(ratings)
-#    if h.nil? 
-#       return
-#    end
+    if ratings.nil? || eval(ratings).nil?
+        return
+    end
     
 #logger.debug "check ratings #{ratings.class?}"
     @movies = Movie.filter(ratings)
