@@ -15,19 +15,37 @@ class MoviesController < ApplicationController
   end
 
   def index
-#@movies = Movie.filtered_sort('title', 'G')
+    logger.debug 'Starting index...'
     if(sort_column.nil?)
        @movies = Movie.all
     else
        @movies = Movie.order(sort_column)
     end
-#@movies = Movie.all
-    #@movies = Movie.order(params[:sort])
-    @movies = Movie.order(sort_column)
-    #ogger.debug "#{params}"
-#movies = Movie.filtered_sort(params[:sort], ratings)
-    #movies = Movie.filtered_sort('title', 'G')
-    #logger.debug('Movie path: ' + movies_path)
+
+    if ratings.nil?
+        return
+    end
+    h = eval(ratings)
+    if h.nil? 
+       return
+    end
+    
+#logger.debug "check ratings #{ratings.class?}"
+    @movies = Movie.filter(ratings)
+#end
+#   tmp = @movies.copy
+#   #movies = nil
+#   filtered_movies = filter(ratings)
+#   combined_movies = Array.new
+#   tmp.each do |movie|
+#     filtered_movies.each  do |fm|
+#        if(fm.title == movie.title && fm.rating == movie.rating)
+#             logger.debug "match: #{movie.title} #{movie.rating}"
+#             @movies << movie
+#        end
+#     end # filtered movies each
+#   end # movies.each
+    logger.debug "#{@movies}"
   end
 
   def new
@@ -74,13 +92,12 @@ class MoviesController < ApplicationController
     return ".hilite"
   end
 
-#def filter()
-#     collection = Movie.order(sort_column)
-#     collection.each do |movie|
-#        logger.debug "#{movie.title} #{movie.rating}"
-#     end
-#Movie.where('rating = "G"')
-#  end
-
-
+  def filter(ratings) 
+     logger.debug 'Starting controller filter: '
+     movies = @movies
+#movies = Movie.filter(movies)
+     Movie.filter(ratings)
+     return @movies
+#return @movies
+  end
 end
