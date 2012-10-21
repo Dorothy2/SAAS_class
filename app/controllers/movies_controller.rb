@@ -15,10 +15,15 @@ class MoviesController < ApplicationController
   end
 
   def index
-    Movie.filtered_sort('title', 'G')
-    @movies = Movie.all
+#@movies = Movie.filtered_sort('title', 'G')
+    if(sort_column.nil?)
+       @movies = Movie.all
+    else
+       @movies = Movie.order(sort_column)
+    end
+#@movies = Movie.all
     #@movies = Movie.order(params[:sort])
-#@movies = Movie.order(sort_column)
+    @movies = Movie.order(sort_column)
     #ogger.debug "#{params}"
 #movies = Movie.filtered_sort(params[:sort], ratings)
     #movies = Movie.filtered_sort('title', 'G')
@@ -54,13 +59,19 @@ class MoviesController < ApplicationController
   end
 
   def sort_column 
-     %w[title, release_date].include?(params[:sort]) ? params[:sort] : "title"
+     if(params != nil)
+      %w[title, release_date].include?(params[:sort]) ? params[:sort] : "title"
+     end
   end
 
   def ratings
     ratings = params[:ratings]
     logger.debug "#{ratings}"
 
+  end
+
+  def hilite
+    return ".hilite"
   end
 
 #def filter()
