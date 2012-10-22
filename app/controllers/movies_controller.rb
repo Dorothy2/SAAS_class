@@ -21,23 +21,33 @@ def initialize
        @movies = Movie.all
     else
        logger.debug "using sort: #{sort_column}"
-       if(params[:sort] == nil)
-          redirect_path = "#{movies_path}?sort=#{sort_column}"
-          redirect_to  redirect_path
-       end
        @movies = Movie.order(sort_column)
 #session[:sort] = sort_column
     end
-    logger.debug "at end of index session:  #{session[:sort]}"
+#logger.debug "at end of index session:  #{session[:sort]}"
 
 #logger.debug "Ratings: #{ratings} ratings nil? #{ratings.nil?} ratings.length #{ratings.length}"
-    if ratings.nil?
-        return(@movies)
-    end
+#if ratings.nil?
+#        return(@movies)
+#    end
     
 #logger.debug "check ratings #{ratings.class?}"
-    @movies = Movie.filter(ratings)
+    if(! ratings.nil?) 
+      @movies = Movie.filter(ratings)
+    end
+if(params[:sort] == nil && sort_column != nil)
+           redirect_path ="#{movies_path}?sort=#{sort_column}"
+           if(!ratings.nil?)
+              ratings.each  do |key, value|
+                 redirect_path = redirect_path + "&ratings[#{key}]=ratings[#{key}]"
+              end
+
+           end
+           logger.debug "redirect path #{redirect_path}"
+           redirect_to  redirect_path
+        end
     logger.debug "#{@movies}"
+    return(@movies)
   end
 
   def new
@@ -71,7 +81,6 @@ def initialize
   def sort_column 
      logger.debug "params #{params[:sort].class} session #{session[:sort].class}"
      if(params[:sort] != nil)
-#foo = %w[title, release_date].include?(params[:sort]) ? params[:sort] : nil
         foo = params[:sort]
         logger.debug "foo #{foo.class}"
         if(foo.class != NilClass)
@@ -91,7 +100,16 @@ def initialize
   end
 
   def ratings
-    ratings = params[:ratings]
+    logger.debug "params #{params[:ratings].class} session #{session[:ratings].class}"
+    if(params[:ratings] != nil)
+       ratings = params[:ratings]
+       session[:ratings] = params[:ratings]
+    elsif(session[:ratings] != nil)
+       logger.debug "Retrieving sort from cache"
+       ratings = session[:ratings]
+    else
+       logger.debug "No param or session value for ratings"
+    end
     logger.debug "From ratings: #{ratings.class}"
     return ratings
 
