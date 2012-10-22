@@ -1,7 +1,7 @@
 class MoviesController < ApplicationController
 
-   attr_reader :all_ratings
-   def initialize
+attr_reader :all_ratings
+def initialize
      super()
      logger.debug "Ratings #{Movie.all_ratings}"
      @all_ratings = Movie.all_ratings
@@ -16,11 +16,19 @@ class MoviesController < ApplicationController
 
   def index
     logger.debug 'Starting index...'
+    logger.debug "session:  #{session[:sort]}"
     if(sort_column.nil?)
        @movies = Movie.all
     else
+       logger.debug "using sort: #{sort_column}"
+       if(params[:sort] == nil)
+          redirect_path = "#{movies_path}?sort=#{sort_column}"
+          redirect_to  redirect_path
+       end
        @movies = Movie.order(sort_column)
+#session[:sort] = sort_column
     end
+    logger.debug "at end of index session:  #{session[:sort]}"
 
 #logger.debug "Ratings: #{ratings} ratings nil? #{ratings.nil?} ratings.length #{ratings.length}"
     if ratings.nil?
@@ -29,19 +37,6 @@ class MoviesController < ApplicationController
     
 #logger.debug "check ratings #{ratings.class?}"
     @movies = Movie.filter(ratings)
-#end
-#   tmp = @movies.copy
-#   #movies = nil
-#   filtered_movies = filter(ratings)
-#   combined_movies = Array.new
-#   tmp.each do |movie|
-#     filtered_movies.each  do |fm|
-#        if(fm.title == movie.title && fm.rating == movie.rating)
-#             logger.debug "match: #{movie.title} #{movie.rating}"
-#             @movies << movie
-#        end
-#     end # filtered movies each
-#   end # movies.each
     logger.debug "#{@movies}"
   end
 
@@ -74,9 +69,25 @@ class MoviesController < ApplicationController
   end
 
   def sort_column 
-     if(params != nil)
-      %w[title, release_date].include?(params[:sort]) ? params[:sort] : "title"
+     logger.debug "params #{params[:sort].class} session #{session[:sort].class}"
+     if(params[:sort] != nil)
+#foo = %w[title, release_date].include?(params[:sort]) ? params[:sort] : nil
+        foo = params[:sort]
+        logger.debug "foo #{foo.class}"
+        if(foo.class != NilClass)
+          session[:sort] = params[:sort]
+          logger.debug "Storing sort #{session[:sort]}"
+          return(params[:sort])
+        end
+      elsif(session[:sort] != nil)
+         logger.debug "Retrieving sort #{params[:sort]}"
+         foo = session[:sort]
+         return foo
+       
      end
+     logger.debug "No param or session value."
+     return nil
+
   end
 
   def ratings
@@ -86,9 +97,9 @@ class MoviesController < ApplicationController
 
   end
 
-  def hilite
-    return ".hilite"
-  end
+# def hilite
+#   return ".hilite"
+# end
 
   def filter(ratings) 
      logger.debug 'Starting controller filter: '
